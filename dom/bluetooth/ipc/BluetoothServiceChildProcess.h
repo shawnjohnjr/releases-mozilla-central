@@ -161,10 +161,6 @@ public:
                      const uint32_t aData,
                      BluetoothReplyRunnable* aRunnable) MOZ_OVERRIDE;
 
-  virtual void
-  GetConnectedSinkAddress(nsAString& aConnectedSinkAddr,
-                          BluetoothReplyRunnable* aRunnable) MOZ_OVERRIDE;
-
 protected:
   BluetoothServiceChildProcess();
   virtual ~BluetoothServiceChildProcess();

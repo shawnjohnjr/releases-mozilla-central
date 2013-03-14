@@ -377,8 +377,7 @@ BluetoothServiceChildProcess::DisconnectSink(const nsAString& aDeviceAddress,
 }
 
 bool
-BluetoothServiceChildProcess::UpdatePlayStatus(const nsAString& aPath,
-  const uint32_t aDuration, const uint32_t aPosition, const uint32_t aPlayStatus,
+BluetoothServiceChildProcess::UpdatePlayStatus(const uint32_t aDuration, const uint32_t aPosition, const uint32_t aPlayStatus,
   BluetoothReplyRunnable* aRunnable)
 {
   MOZ_NOT_REACHED("This should never be called!");
@@ -401,15 +400,9 @@ BluetoothServiceChildProcess::UpdateMetaData(
 }
 
 bool
-BluetoothServiceChildProcess::UpdateNotification(const nsAString& aDeviceObjectPath,
-                        const uint32_t aEventid, const uint32_t aData, BluetoothReplyRunnable* aRunnable)
+BluetoothServiceChildProcess::UpdateNotification(const uint32_t aEventid, const uint32_t aData, BluetoothReplyRunnable* aRunnable)
 {
   MOZ_NOT_REACHED("This should never be called!");
   return false;
 }
 
-void
-BluetoothServiceChildProcess::GetConnectedSinkAddress(nsAString& aConnectedSinkAddr, BluetoothReplyRunnable* aRunnable)
-{
-  SendRequest(aRunnable, GetConnectedSinkAddressRequest(nsString(aConnectedSinkAddr)));
-}

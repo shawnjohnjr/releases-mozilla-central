@@ -263,8 +263,7 @@ public:
                  BluetoothReplyRunnable* aRunnable) = 0;
 
   virtual bool
-  UpdatePlayStatus(const nsAString& aDeviceAddress,
-                   const uint32_t aDuration,
+  UpdatePlayStatus(const uint32_t aDuration,
                    const uint32_t aPosition,
                    const uint32_t aPlayStatus,
                    BluetoothReplyRunnable* aRunnable) = 0;
@@ -277,8 +276,7 @@ public:
                  const nsAString& aPlaytime,
                  BluetoothReplyRunnable* aRunnable) = 0;
   virtual bool
-  UpdateNotification(const nsAString& aDeviceObjectPath,
-                     const uint32_t aEventid, const uint32_t aData,
+  UpdateNotification(const uint32_t aEventid, const uint32_t aData,
                      BluetoothReplyRunnable* aRunnable) = 0;
   bool
   IsEnabled() const

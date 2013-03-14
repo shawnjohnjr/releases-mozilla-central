@@ -5,14 +5,26 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "BluetoothA2dpManager.h"
+#include "BluetoothReplyRunnable.h"
 #include "BluetoothService.h"
 #include "gonk/AudioSystem.h"
 #include "nsThreadUtils.h"
 
 #include <utils/String8.h>
-
+#include <android/log.h>
+#define BTDEBUG 1
+#define LOG(args...)  __android_log_print(ANDROID_LOG_INFO, "A2DP", args);
+#define BLUETOOTH_A2DP_STATUS_CHANGED "bluetooth-a2dp-status-changed"
 USING_BLUETOOTH_NAMESPACE
 
+static const int STATUS_STOPPED = 0x00;
+static const int STATUS_PLAYING = 0x01;
+static const int STATUS_PAUSED = 0x02;
+static const int STATUS_FWD_SEEK = 0x03;
+static const int STATUS_REV_SEEK = 0x04;
+static const int STATUS_ERROR = 0xFF;
+static const int EVENT_PLAYSTATUS_CHANGED = 0x1;
+static const int EVENT_TRACK_CHANGED = 0x2;
 namespace {
   static nsAutoPtr<BluetoothA2dpManager> gBluetoothA2dpManager;
 } // anonymous namespace
@@ -43,6 +55,20 @@ BluetoothA2dpManager::Get()
   BT_LOG("A new BluetoothA2dpManager");
   return gBluetoothA2dpManager;
 };
+
+static BluetoothA2dpState
+ConvertSinkStringToState(const nsAString& aNewState)
+{
+  if (aNewState.EqualsLiteral("disonnected"))
+    return BluetoothA2dpState::SINK_DISCONNECTED;
+  if (aNewState.EqualsLiteral("connecting"))
+    return BluetoothA2dpState::SINK_CONNECTING;
+  if (aNewState.EqualsLiteral("connected"))
+    return BluetoothA2dpState::SINK_CONNECTED;
+  if (aNewState.EqualsLiteral("playing"))
+    return BluetoothA2dpState::SINK_PLAYING;
+    return BluetoothA2dpState::SINK_DISCONNECTED;
+}
 
 static void
 SetParameter(const nsAString& aParameter)
@@ -78,6 +104,45 @@ TeardownA2dpDevice(const nsAString& aDeviceAddress)
                              NS_ConvertUTF16toUTF8(aDeviceAddress).get());
 }
 
+static void
+RouteA2dpAudioPath()
+{
+  SetParameter(NS_LITERAL_STRING("bluetooth_enabled=true"));
+  SetParameter(NS_LITERAL_STRING("A2dpSuspended=false"));
+  android::AudioSystem::setForceUse((audio_policy_force_use_t)1, (audio_policy_forced_cfg_t)0);
+}
+
+void
+BluetoothA2dpManager::HandleSinkPropertyChange(const nsAString& aDeviceObjectPath,
+                         const nsAString& aNewState)
+{
+  //Possible values: "disconnected", "connecting",
+  //"connected", "playing"
+  // 1. "disconnected" -> "connecting"
+  //  Either an incoming or outgoing connection
+  //  attempt ongoing.
+  // 2. "connecting" -> "disconnected"
+  // Connection attempt failed
+  // 3. "connecting" -> "connected"
+  //     Successfully connected
+  // 4. "connected" -> "playing"
+  //     SCO audio connection successfully opened
+  // 5. "playing" -> "connected"
+  //     SCO audio connection closed
+  // 6. "connected" -> "disconnected"
+  // 7. "playing" -> "disconnected"
+  //     Disconnected from the remote device
+
+  if (aNewState.EqualsLiteral("connected")) {
+    LOG("A2DP connected!! Route path to a2dp");
+    LOG("Currnet device: %s",NS_ConvertUTF16toUTF8(mConnectedDeviceAddress).get());
+    RouteA2dpAudioPath();
+    //MakeA2dpDeviceAvailableNow(GetAddressFromObjectPath(mConnectedDeviceAddress));
+  }
+  mCurrentSinkState = ConvertSinkStringToState(aNewState);
+  //TODO: Need to check Sink state and do more stuffs
+}
+
 bool
 BluetoothA2dpManager::Connect(const nsAString& aDeviceAddress)
 {
@@ -101,7 +166,7 @@ BluetoothA2dpManager::Connect(const nsAString& aDeviceAddress)
   BT_LOG("[A2DP] Connect successfully!");
 
   mConnectedDeviceAddress = aDeviceAddress;
-
+  LOG("Connected Device address:%s", NS_ConvertUTF16toUTF8(mConnectedDeviceAddress).get() );
   return true;
 }
 
@@ -124,6 +189,72 @@ BluetoothA2dpManager::Disconnect(const nsAString& aDeviceAddress)
   BT_LOG("[A2DP] Disconnect successfully!");
 
   mConnectedDeviceAddress.AssignLiteral(BLUETOOTH_INVALID_ADDRESS);
+}
+
+void
+BluetoothA2dpManager::UpdatePlayStatus(const nsAString& aTitle,
+                                       const nsAString& aDuration,
+                                       const nsAString& aPlayStatus,
+                                       BluetoothReplyRunnable* aRunnable)
+{
+#if 0
+  BT_LOG("UpdatePlayStatus");
+  BluetoothService* bs = BluetoothService::Get();
+  if (mPlayStatus == STATUS_PLAYING) {
+    //TODO: we need to handle position
+    LOG("Update position: %d", mPosition);
+  }
+  //TODO: Needs to check Duration/Position correctness
+  mDuration = 1;
+  mPosition = 1;
+  mPlayStatus = 1;
+  bs->UpdatePlayStatus(mConnectedDeviceAddress, mDuration, mPosition, mPlayStatus, aRunnable);
+#endif
+}
+
+void
+BluetoothA2dpManager::UpdateMetaData(const nsAString& aTitle, const nsAString& aArtist,
+                                     const nsAString& aAlbum,
+                                     const nsAString& aMediaNumber,
+                                     const nsAString& aTotalMediaCount,
+                                     const nsAString& aPlaytime,
+                                     BluetoothReplyRunnable* aRunnable)
+{
+#if 0
+  BluetoothService* bs = BluetoothService::Get();
+  if (mPlayStatus == STATUS_PLAYING) {
+    //TODO: we need to handle position
+    //this currently just skelton
+    LOG("Update position: %d", mPosition);
+  }
+  mTrackName = aTitle;
+  mArtist = aArtist;
+  mAlbum = aAlbum;
+  mTrackNumber = aMediaNumber;
+  mTotalMediaCount = aTotalMediaCount;
+  mPlaytime = aPlaytime;
+
+#ifdef BTDEBUG
+  LOG("BluetoothA2dpManager::UpdateMetaData");
+  LOG("aTitle: %s",NS_ConvertUTF16toUTF8(mTrackName).get());
+  LOG("aArtist: %s",NS_ConvertUTF16toUTF8(mArtist).get());
+  LOG("aAlbum: %s",NS_ConvertUTF16toUTF8(mAlbum).get());
+  LOG("aMediaNumber: %s",NS_ConvertUTF16toUTF8(mTrackNumber).get());
+  LOG("aTotalMediaCount: %s",NS_ConvertUTF16toUTF8(aTotalMediaCount).get());
+  LOG("CurrentAddress: %s",NS_ConvertUTF16toUTF8(mConnectedDeviceAddress).get());
+#endif
+  if (!mConnectedDeviceAddress.IsEmpty()) {
+    bs->UpdateMetaData(mConnectedDeviceAddress, mTrackName, mArtist, mAlbum,
+                       mTrackNumber, mTotalMediaCount, mPlaytime, aRunnable);
+  }
+#endif
+}
+
+void
+BluetoothA2dpManager::GetConnectedSinkAddress(nsAString& aDeviceAddress)
+{
+  BT_LOG("mConnectedDeviceAddress: %s", NS_ConvertUTF16toUTF8(mConnectedDeviceAddress).get());
+  aDeviceAddress = mConnectedDeviceAddress;
 }
 
 bool

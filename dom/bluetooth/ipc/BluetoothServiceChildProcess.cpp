@@ -377,13 +377,39 @@ BluetoothServiceChildProcess::DisconnectSink(const nsAString& aDeviceAddress,
 }
 
 bool
-BluetoothServiceChildProcess::UpdatePlayStatus(const nsAString& aDeviceAddress,
-                                               const uint32_t aDuration,
-                                               const uint32_t aPosition,
-                                               const uint32_t aPlayStatus,
-                                               BluetoothReplyRunnable* aRunnable)
+BluetoothServiceChildProcess::UpdatePlayStatus(const nsAString& aPath,
+  const uint32_t aDuration, const uint32_t aPosition, const uint32_t aPlayStatus,
+  BluetoothReplyRunnable* aRunnable)
 {
-  // xxx Implement me!! 
-  MOZ_NOT_REACHED("Haven't implemented yet!!");
+  MOZ_NOT_REACHED("This should never be called!");
   return false;
+}
+
+bool
+BluetoothServiceChildProcess::UpdateMetaData(
+                 const nsAString& aTitle,
+                 const nsAString& aArtist,
+                 const nsAString& aAlbum,
+                 const nsAString& aMediaNumber,
+                 const nsAString& aTotalMediaCount,
+                 const nsAString& aPlaytime,
+                 BluetoothReplyRunnable* aRunnable)
+{
+  SendRequest(aRunnable, UpdateMetaDataRequest(nsString(aTitle),
+        nsString(aArtist), nsString(aAlbum), nsString(aMediaNumber), nsString(aTotalMediaCount), nsString(aPlaytime)));
+  return true;
+}
+
+bool
+BluetoothServiceChildProcess::UpdateNotification(const nsAString& aDeviceObjectPath,
+                        const uint32_t aEventid, const uint32_t aData, BluetoothReplyRunnable* aRunnable)
+{
+  MOZ_NOT_REACHED("This should never be called!");
+  return false;
+}
+
+void
+BluetoothServiceChildProcess::GetConnectedSinkAddress(nsAString& aConnectedSinkAddr, BluetoothReplyRunnable* aRunnable)
+{
+  SendRequest(aRunnable, GetConnectedSinkAddressRequest(nsString(aConnectedSinkAddr)));
 }

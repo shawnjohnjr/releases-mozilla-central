@@ -268,7 +268,18 @@ public:
                    const uint32_t aPosition,
                    const uint32_t aPlayStatus,
                    BluetoothReplyRunnable* aRunnable) = 0;
-
+  virtual bool
+  UpdateMetaData(const nsAString& aTitle,
+                 const nsAString& aArtist,
+                 const nsAString& aAlbum,
+                 const nsAString& aMediaNumber,
+                 const nsAString& aTotalMediaCount,
+                 const nsAString& aPlaytime,
+                 BluetoothReplyRunnable* aRunnable) = 0;
+  virtual bool
+  UpdateNotification(const nsAString& aDeviceObjectPath,
+                     const uint32_t aEventid, const uint32_t aData,
+                     BluetoothReplyRunnable* aRunnable) = 0;
   bool
   IsEnabled() const
   {

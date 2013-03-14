@@ -144,11 +144,26 @@ public:
                  BluetoothReplyRunnable* aRunnable) MOZ_OVERRIDE;
 
   virtual bool
-  UpdatePlayStatus(const nsAString& aDeviceAddress,
-                   const uint32_t aDuration,
-                   const uint32_t aPosition,
-                   const uint32_t aPlayStatus,
-                   BluetoothReplyRunnable* aRunnable) MOZ_OVERRIDE;
+  UpdatePlayStatus(const uint32_t aDuration, const uint32_t aPosition,
+                   const uint32_t aPlayStatus, BluetoothReplyRunnable* aRunnable) MOZ_OVERRIDE;
+
+  virtual bool
+  UpdateMetaData(const nsAString& aTitle,
+                 const nsAString& aArtist,
+                 const nsAString& aAlbum,
+                 const nsAString& aMediaNumber,
+                 const nsAString& aTotalMediaCount,
+                 const nsAString& aPlaytime,
+                 BluetoothReplyRunnable* aRunnable) MOZ_OVERRIDE;
+
+  virtual bool
+  UpdateNotification(const uint32_t aEventid,
+                     const uint32_t aData,
+                     BluetoothReplyRunnable* aRunnable) MOZ_OVERRIDE;
+
+  virtual void
+  GetConnectedSinkAddress(nsAString& aConnectedSinkAddr,
+                          BluetoothReplyRunnable* aRunnable) MOZ_OVERRIDE;
 
 protected:
   BluetoothServiceChildProcess();

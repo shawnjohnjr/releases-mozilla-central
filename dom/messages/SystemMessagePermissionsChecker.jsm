@@ -70,6 +70,9 @@ this.SystemMessagePermissionsTable = {
   "bluetooth-opp-transfer-start": {
     "bluetooth": []
   },
+  "bluetooth-avrcp-playstatus": {
+    "bluetooth": []
+  },
   "headset-button": { },
   "media-button": { },
   "icc-stkcommand": {

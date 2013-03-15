@@ -311,14 +311,14 @@ public:
   Run()
   {
     MOZ_ASSERT(NS_IsMainThread());
-
+    BT_LOG("UpdatePlayStatusTask");
     BluetoothA2dpManager* bs = BluetoothA2dpManager::Get();
     if (!bs) {
       NS_WARNING("BluetoothService not available!");
       return NS_ERROR_FAILURE;
     }
-    //FIX ME!!!
-    //bs->UpdatePlayStatus();
+    BT_LOG("UpdatePlayStatusTask");
+    bs->NotifyMusicPlayStatus();
     //TODO: Move it when gaia interface is ready
     return NS_OK;
   }

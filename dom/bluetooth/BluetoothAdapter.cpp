@@ -774,6 +774,45 @@ BluetoothAdapter::SendMetaData(const JS::Value& aValue, nsIDOMDOMRequest** aRequ
 }
 
 NS_IMETHODIMP
+BluetoothAdapter::SendPlayStatus(const JS::Value& aValue, nsIDOMDOMRequest** aRequest)
+{
+  JSContext* cx = nsContentUtils::GetSafeJSContext();
+  BluetoothAvrcpPlayStatusInfo playstatus;
+  playstatus.Init(cx, &aValue);
+//#ifdef DBG
+  BT_LOG("SendPlayStatus");
+//#endif
+  nsCOMPtr<nsIDOMRequestService> rs = do_GetService("@mozilla.org/dom/dom-request-service;1");
+  if (!rs) {
+    NS_WARNING("No DOMRequest Service!");
+    return NS_ERROR_FAILURE;
+  }
+
+  BluetoothService* bs = BluetoothService::Get();
+  if (!bs) {
+    NS_WARNING("BluetoothService not available!");
+    return NS_ERROR_FAILURE;
+  }
+
+  nsCOMPtr<nsIDOMDOMRequest> req;
+  nsresult rv = rs->CreateRequest(GetOwner(), getter_AddRefs(req));
+  if (NS_FAILED(rv)) {
+    NS_WARNING("Can't create DOMRequest!");
+    return NS_ERROR_FAILURE;
+  }
+
+  nsRefPtr<BluetoothVoidReplyRunnable> result = new BluetoothVoidReplyRunnable(req);
+  nsString connectedSinkAddress;
+  nsresult rvs;
+  int leng = playstatus.length.ToInteger(&rvs);
+  int currposition = playstatus.position.ToInteger(&rvs);
+  int currplaystatus = playstatus.playStatus.ToInteger(&rvs);
+  BT_LOG("Length: %d, Current Position: %d, Current Play Status: %s", leng, currposition, NS_ConvertUTF16toUTF8(playstatus.playStatus).get());
+  bs->UpdatePlayStatus(leng, currposition, currplaystatus, result);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 BluetoothAdapter::StopSendingFile(const nsAString& aDeviceAddress,
                                   nsIDOMDOMRequest** aRequest)
 {

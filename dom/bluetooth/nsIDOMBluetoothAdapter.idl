@@ -43,6 +43,7 @@ interface nsIDOMBluetoothAdapter : nsIDOMEventTarget
   nsIDOMDOMRequest setAuthorization(in DOMString aDeviceAddress, in bool aAllow);
   // AVRCP methods
   nsIDOMDOMRequest sendMetaData(in jsval aValue);
+  nsIDOMDOMRequest sendPlayStatus(in jsval aValue);
 
   /** 
    * Connect/Disconnect to a specific service of a target remote device. 

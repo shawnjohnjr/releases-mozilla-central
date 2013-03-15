@@ -9,7 +9,7 @@
 #include "BluetoothService.h"
 #include "gonk/AudioSystem.h"
 #include "nsThreadUtils.h"
-
+#include "BluetoothUtils.h"
 #include <utils/String8.h>
 #include <android/log.h>
 #define BTDEBUG 1
@@ -192,24 +192,15 @@ BluetoothA2dpManager::Disconnect(const nsAString& aDeviceAddress)
 }
 
 void
-BluetoothA2dpManager::UpdatePlayStatus(const nsAString& aTitle,
-                                       const nsAString& aDuration,
-                                       const nsAString& aPlayStatus,
-                                       BluetoothReplyRunnable* aRunnable)
+BluetoothA2dpManager::NotifyMusicPlayStatus()
 {
-#if 0
-  BT_LOG("UpdatePlayStatus");
-  BluetoothService* bs = BluetoothService::Get();
-  if (mPlayStatus == STATUS_PLAYING) {
-    //TODO: we need to handle position
-    LOG("Update position: %d", mPosition);
-  }
-  //TODO: Needs to check Duration/Position correctness
-  mDuration = 1;
-  mPosition = 1;
-  mPlayStatus = 1;
-  bs->UpdatePlayStatus(mConnectedDeviceAddress, mDuration, mPosition, mPlayStatus, aRunnable);
-#endif
+
+  BT_LOG("NotifyMusicPlayStatus");
+  nsString message;
+  message.AssignLiteral("bluetooth-avrcp-playstatus");
+  if (!BroadcastSystemMessage(message))
+    BT_LOG("fail to send system message");
+
 }
 
 void

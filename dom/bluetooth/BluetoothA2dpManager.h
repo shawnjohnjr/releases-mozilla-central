@@ -31,9 +31,7 @@ public:
   bool Listen();
   void GetConnectedSinkAddress(nsAString& aDeviceAddress);
   void ResetAudio();
-  void UpdatePlayStatus(const nsAString& aTitle,
-                        const nsAString& aDuration, const nsAString& aPlayStatus,
-                        BluetoothReplyRunnable* aRunnable);
+  void NotifyMusicPlayStatus();
   void UpdateMetaData(const nsAString& aTitle, const nsAString& aArtist,
                       const nsAString& aAlbum, const nsAString& aMediaNumber,
                       const nsAString& aTotalMediaCount, const nsAString& aPlaytime,

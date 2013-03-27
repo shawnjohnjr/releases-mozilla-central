@@ -10,7 +10,7 @@ interface nsIDOMDOMRequest;
 interface nsIDOMBlob;
 interface nsIDOMBluetoothDevice;
 
-[scriptable, builtinclass, uuid(59de7f16-b966-4f66-b8bd-ae3073f1ed04)]
+[scriptable, builtinclass, uuid(6a4a9415-cda3-4a19-b79e-05d9bc2c2700)]
 interface nsIDOMBluetoothAdapter : nsIDOMEventTarget
 {
   readonly attribute DOMString address;

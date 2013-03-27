@@ -779,9 +779,7 @@ BluetoothAdapter::SendPlayStatus(const JS::Value& aValue, nsIDOMDOMRequest** aRe
   JSContext* cx = nsContentUtils::GetSafeJSContext();
   BluetoothAvrcpPlayStatusInfo playstatus;
   playstatus.Init(cx, &aValue);
-//#ifdef DBG
-  BT_LOG("SendPlayStatus");
-//#endif
+  BT_LOG("%s", __FUNCTION__);
   nsCOMPtr<nsIDOMRequestService> rs = do_GetService("@mozilla.org/dom/dom-request-service;1");
   if (!rs) {
     NS_WARNING("No DOMRequest Service!");
@@ -807,7 +805,6 @@ BluetoothAdapter::SendPlayStatus(const JS::Value& aValue, nsIDOMDOMRequest** aRe
   int leng = playstatus.length.ToInteger(&rvs);
   int currposition = playstatus.position.ToInteger(&rvs);
   int currplaystatus = playstatus.playStatus.ToInteger(&rvs);
-  BT_LOG("Length: %d, Current Position: %d, Current Play Status: %s", leng, currposition, NS_ConvertUTF16toUTF8(playstatus.playStatus).get());
   bs->UpdatePlayStatus(leng, currposition, currplaystatus, result);
   return NS_OK;
 }

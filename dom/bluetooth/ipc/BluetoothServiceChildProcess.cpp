@@ -380,8 +380,8 @@ bool
 BluetoothServiceChildProcess::UpdatePlayStatus(const uint32_t aDuration, const uint32_t aPosition, const uint32_t aPlayStatus,
   BluetoothReplyRunnable* aRunnable)
 {
-  MOZ_NOT_REACHED("This should never be called!");
-  return false;
+  SendRequest(aRunnable, UpdatePlayStatusRequest(aDuration, aPosition, aPlayStatus));
+  return true;
 }
 
 bool

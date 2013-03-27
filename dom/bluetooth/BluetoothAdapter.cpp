@@ -732,7 +732,7 @@ BluetoothAdapter::SendMetaData(const JS::Value& aValue, nsIDOMDOMRequest** aRequ
   BluetoothAvrcpMetaDataInfo metainfo;
   metainfo.Init(cx, &aValue);
 //#ifdef DBG
-  BT_LOG("SendPlayStatus");
+  BT_LOG("SendMetaData");
   BT_LOG("Song title: %s", NS_ConvertUTF16toUTF8(metainfo.title).get());
   BT_LOG("Song artist: %s", NS_ConvertUTF16toUTF8(metainfo.artist).get());
   BT_LOG("Song album: %s", NS_ConvertUTF16toUTF8(metainfo.album).get());
@@ -809,6 +809,36 @@ BluetoothAdapter::SendPlayStatus(const JS::Value& aValue, nsIDOMDOMRequest** aRe
   int currplaystatus = playstatus.playStatus.ToInteger(&rvs);
   BT_LOG("Length: %d, Current Position: %d, Current Play Status: %s", leng, currposition, NS_ConvertUTF16toUTF8(playstatus.playStatus).get());
   bs->UpdatePlayStatus(leng, currposition, currplaystatus, result);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+BluetoothAdapter::SendNotification(uint16_t aEventId, uint16_t aData, nsIDOMDOMRequest** aRequest)
+{
+  BT_LOG("SendNotification");
+  nsCOMPtr<nsIDOMRequestService> rs = do_GetService("@mozilla.org/dom/dom-request-service;1");
+  if (!rs) {
+    NS_WARNING("No DOMRequest Service!");
+    return NS_ERROR_FAILURE;
+  }
+
+  BluetoothService* bs = BluetoothService::Get();
+  if (!bs) {
+    NS_WARNING("BluetoothService not available!");
+    return NS_ERROR_FAILURE;
+  }
+
+  nsCOMPtr<nsIDOMDOMRequest> req;
+  nsresult rv = rs->CreateRequest(GetOwner(), getter_AddRefs(req));
+  if (NS_FAILED(rv)) {
+    NS_WARNING("Can't create DOMRequest!");
+    return NS_ERROR_FAILURE;
+  }
+
+  nsRefPtr<BluetoothVoidReplyRunnable> result = new BluetoothVoidReplyRunnable(req);
+  nsString connectedSinkAddress;
+  BT_LOG("Notification: %d, %d", aEventId, aData);
+  bs->UpdateNotification(aEventId, aData, result);
   return NS_OK;
 }
 

@@ -12,8 +12,6 @@
 #include "BluetoothUtils.h"
 #include <utils/String8.h>
 #include <android/log.h>
-#define BTDEBUG 1
-#define LOG(args...)  __android_log_print(ANDROID_LOG_INFO, "A2DP", args);
 #define BLUETOOTH_A2DP_STATUS_CHANGED "bluetooth-a2dp-status-changed"
 USING_BLUETOOTH_NAMESPACE
 
@@ -109,35 +107,36 @@ RouteA2dpAudioPath()
 {
   SetParameter(NS_LITERAL_STRING("bluetooth_enabled=true"));
   SetParameter(NS_LITERAL_STRING("A2dpSuspended=false"));
-  android::AudioSystem::setForceUse((audio_policy_force_use_t)1, (audio_policy_forced_cfg_t)0);
+  android::AudioSystem::setForceUse((audio_policy_force_use_t)1,
+      (audio_policy_forced_cfg_t)0);
 }
 
+/* HandleSinkPropertyChange stores current A2DP state
+ * Possible values: "disconnected", "connecting","connected", "playing"
+ * 1. "disconnected" -> "connecting"
+ *  Either an incoming or outgoing connection
+ *  attempt ongoing.
+ * 2. "connecting" -> "disconnected"
+ * Connection attempt failed
+ * 3. "connecting" -> "connected"
+ *     Successfully connected
+ * 4. "connected" -> "playing"
+ *     SCO audio connection successfully opened
+ * 5. "playing" -> "connected"
+ *     SCO audio connection closed
+ * 6. "connected" -> "disconnected"
+ * 7. "playing" -> "disconnected"
+ *     Disconnected from the remote device
+ */
 void
 BluetoothA2dpManager::HandleSinkPropertyChange(const nsAString& aDeviceObjectPath,
                          const nsAString& aNewState)
 {
-  //Possible values: "disconnected", "connecting",
-  //"connected", "playing"
-  // 1. "disconnected" -> "connecting"
-  //  Either an incoming or outgoing connection
-  //  attempt ongoing.
-  // 2. "connecting" -> "disconnected"
-  // Connection attempt failed
-  // 3. "connecting" -> "connected"
-  //     Successfully connected
-  // 4. "connected" -> "playing"
-  //     SCO audio connection successfully opened
-  // 5. "playing" -> "connected"
-  //     SCO audio connection closed
-  // 6. "connected" -> "disconnected"
-  // 7. "playing" -> "disconnected"
-  //     Disconnected from the remote device
 
   if (aNewState.EqualsLiteral("connected")) {
-    LOG("A2DP connected!! Route path to a2dp");
-    LOG("Currnet device: %s",NS_ConvertUTF16toUTF8(mConnectedDeviceAddress).get());
+    BT_LOG("A2DP connected!! Route path to a2dp");
+    BT_LOG("Currnet device: %s",NS_ConvertUTF16toUTF8(mConnectedDeviceAddress).get());
     RouteA2dpAudioPath();
-    //MakeA2dpDeviceAvailableNow(GetAddressFromObjectPath(mConnectedDeviceAddress));
   }
   mCurrentSinkState = ConvertSinkStringToState(aNewState);
   //TODO: Need to check Sink state and do more stuffs
@@ -166,7 +165,7 @@ BluetoothA2dpManager::Connect(const nsAString& aDeviceAddress)
   BT_LOG("[A2DP] Connect successfully!");
 
   mConnectedDeviceAddress = aDeviceAddress;
-  LOG("Connected Device address:%s", NS_ConvertUTF16toUTF8(mConnectedDeviceAddress).get() );
+  BT_LOG("Connected Device address:%s", NS_ConvertUTF16toUTF8(mConnectedDeviceAddress).get() );
   return true;
 }
 
@@ -195,12 +194,11 @@ void
 BluetoothA2dpManager::NotifyMusicPlayStatus()
 {
 
-  BT_LOG("NotifyMusicPlayStatus");
+  BT_LOG("%s", __FUNCTION__);
   nsString message;
   message.AssignLiteral("bluetooth-avrcp-playstatus");
   if (!BroadcastSystemMessage(message))
     BT_LOG("fail to send system message");
-
 }
 
 void
@@ -211,34 +209,6 @@ BluetoothA2dpManager::UpdateMetaData(const nsAString& aTitle, const nsAString& a
                                      const nsAString& aPlaytime,
                                      BluetoothReplyRunnable* aRunnable)
 {
-#if 0
-  BluetoothService* bs = BluetoothService::Get();
-  if (mPlayStatus == STATUS_PLAYING) {
-    //TODO: we need to handle position
-    //this currently just skelton
-    LOG("Update position: %d", mPosition);
-  }
-  mTrackName = aTitle;
-  mArtist = aArtist;
-  mAlbum = aAlbum;
-  mTrackNumber = aMediaNumber;
-  mTotalMediaCount = aTotalMediaCount;
-  mPlaytime = aPlaytime;
-
-#ifdef BTDEBUG
-  LOG("BluetoothA2dpManager::UpdateMetaData");
-  LOG("aTitle: %s",NS_ConvertUTF16toUTF8(mTrackName).get());
-  LOG("aArtist: %s",NS_ConvertUTF16toUTF8(mArtist).get());
-  LOG("aAlbum: %s",NS_ConvertUTF16toUTF8(mAlbum).get());
-  LOG("aMediaNumber: %s",NS_ConvertUTF16toUTF8(mTrackNumber).get());
-  LOG("aTotalMediaCount: %s",NS_ConvertUTF16toUTF8(aTotalMediaCount).get());
-  LOG("CurrentAddress: %s",NS_ConvertUTF16toUTF8(mConnectedDeviceAddress).get());
-#endif
-  if (!mConnectedDeviceAddress.IsEmpty()) {
-    bs->UpdateMetaData(mConnectedDeviceAddress, mTrackName, mArtist, mAlbum,
-                       mTrackNumber, mTotalMediaCount, mPlaytime, aRunnable);
-  }
-#endif
 }
 
 void

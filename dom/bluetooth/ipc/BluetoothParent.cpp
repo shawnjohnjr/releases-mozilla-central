@@ -227,6 +227,8 @@ BluetoothParent::RecvPBluetoothRequestConstructor(
       return actor->DoRequest(aRequest.get_DenyReceivingFileRequest());
     case Request::TUpdateMetaDataRequest:
       return actor->DoRequest(aRequest.get_UpdateMetaDataRequest());
+    case Request::TUpdateNotificationRequest:
+      return actor->DoRequest(aRequest.get_UpdateNotificationRequest());
 
     default:
       MOZ_NOT_REACHED("Unknown type!");
@@ -600,7 +602,6 @@ BluetoothRequestParent::DoRequest(const UpdateNotificationRequest& aRequest)
 {
   MOZ_ASSERT(mService);
   MOZ_ASSERT(mRequestType == Request::TUpdateNotificationRequest);
-
   mService->UpdateNotification(aRequest.eventid(),
                            aRequest.data(),
                            mReplyRunnable.get());

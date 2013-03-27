@@ -402,7 +402,7 @@ BluetoothServiceChildProcess::UpdateMetaData(
 bool
 BluetoothServiceChildProcess::UpdateNotification(const uint32_t aEventid, const uint32_t aData, BluetoothReplyRunnable* aRunnable)
 {
-  MOZ_NOT_REACHED("This should never be called!");
-  return false;
+  SendRequest(aRunnable, UpdateNotificationRequest(aEventid, aData));
+  return true;
 }
 

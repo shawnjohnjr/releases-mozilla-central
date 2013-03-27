@@ -2969,9 +2969,7 @@ bool
 BluetoothDBusService::UpdateNotification(const uint32_t aEventid, const uint32_t aData,
                                   BluetoothReplyRunnable* aRunnable)
 {
-#ifdef A2DP_DEBUG
-  BT_LOG("UpdateNotification");
-#endif
+  BT_LOG("UpdateNotification : %d, %d", aEventid, aData);
   nsString aConnectedSinkAddr;
   BluetoothA2dpManager* bs = BluetoothA2dpManager::Get();
   bs->GetConnectedSinkAddress(aConnectedSinkAddr);

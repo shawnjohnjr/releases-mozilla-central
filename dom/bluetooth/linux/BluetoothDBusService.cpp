@@ -45,7 +45,7 @@
 #if defined(MOZ_WIDGET_GONK)
 #include "cutils/properties.h"
 #endif
-#define A2DP_DEBUG 1
+
 /**
  * Some rules for dealing with memory in DBus:
  * - A DBusError only needs to be deleted if it's been set, not just
@@ -2819,9 +2819,7 @@ bool
 BluetoothDBusService::SuspendSink(const nsAString& aDeviceObjectPath,
                                   BluetoothReplyRunnable* aRunnable)
 {
-#ifdef A2DP_DEBUG
-  BT_LOG("Suspend Sink!");
-#endif
+
   bool ret = true;
   ret = dbus_func_args_async(mConnection,
                             -1,
@@ -2843,9 +2841,6 @@ bool
 BluetoothDBusService::ResumeSink(const nsAString& aDeviceObjectPath,
                                   BluetoothReplyRunnable* aRunnable)
 {
-#ifdef A2DP_DEBUG
-  BT_LOG("Resume Sink!");
-#endif
   bool ret = true;
   ret = dbus_func_args_async(mConnection,
                             -1,

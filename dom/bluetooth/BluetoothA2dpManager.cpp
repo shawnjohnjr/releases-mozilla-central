@@ -137,6 +137,9 @@ BluetoothA2dpManager::HandleSinkPropertyChange(const nsAString& aDeviceObjectPat
     BT_LOG("A2DP connected!! Route path to a2dp");
     BT_LOG("Currnet device: %s",NS_ConvertUTF16toUTF8(mConnectedDeviceAddress).get());
     RouteA2dpAudioPath();
+  } else if (aNewState.EqualsLiteral("playing")) {
+    BT_LOG("Start streaming Route path to a2dp");
+    RouteA2dpAudioPath();
   }
   mCurrentSinkState = ConvertSinkStringToState(aNewState);
   //TODO: Need to check Sink state and do more stuffs
@@ -199,16 +202,6 @@ BluetoothA2dpManager::NotifyMusicPlayStatus()
   message.AssignLiteral("bluetooth-avrcp-playstatus");
   if (!BroadcastSystemMessage(message))
     BT_LOG("fail to send system message");
-}
-
-void
-BluetoothA2dpManager::UpdateMetaData(const nsAString& aTitle, const nsAString& aArtist,
-                                     const nsAString& aAlbum,
-                                     const nsAString& aMediaNumber,
-                                     const nsAString& aTotalMediaCount,
-                                     const nsAString& aPlaytime,
-                                     BluetoothReplyRunnable* aRunnable)
-{
 }
 
 void

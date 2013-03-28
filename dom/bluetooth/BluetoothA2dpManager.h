@@ -32,10 +32,6 @@ public:
   void GetConnectedSinkAddress(nsAString& aDeviceAddress);
   void ResetAudio();
   void NotifyMusicPlayStatus();
-  void UpdateMetaData(const nsAString& aTitle, const nsAString& aArtist,
-                      const nsAString& aAlbum, const nsAString& aMediaNumber,
-                      const nsAString& aTotalMediaCount, const nsAString& aPlaytime,
-                      BluetoothReplyRunnable* aRunnable);
   void HandleSinkPropertyChange(const nsAString& aDeviceObjectPath,
                                 const nsAString& newState);
   void UpdateNotification(const nsAString& aDeviceObjectPath,

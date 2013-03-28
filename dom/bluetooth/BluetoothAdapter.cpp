@@ -26,8 +26,7 @@
 #include "mozilla/Util.h"
 #include "BluetoothA2dpManager.h"
 #include "DictionaryHelpers.h"
-#define DBG 1
-#define LOG(args...)  __android_log_print(ANDROID_LOG_INFO, "Adapter", args);
+
 using namespace mozilla;
 using namespace mozilla::idl;
 USING_BLUETOOTH_NAMESPACE
@@ -731,16 +730,6 @@ BluetoothAdapter::SendMetaData(const JS::Value& aValue, nsIDOMDOMRequest** aRequ
   JSContext* cx = nsContentUtils::GetSafeJSContext();
   BluetoothAvrcpMetaDataInfo metainfo;
   metainfo.Init(cx, &aValue);
-//#ifdef DBG
-  BT_LOG("SendMetaData");
-  BT_LOG("Song title: %s", NS_ConvertUTF16toUTF8(metainfo.title).get());
-  BT_LOG("Song artist: %s", NS_ConvertUTF16toUTF8(metainfo.artist).get());
-  BT_LOG("Song album: %s", NS_ConvertUTF16toUTF8(metainfo.album).get());
-  BT_LOG("Song duration: %s", NS_ConvertUTF16toUTF8(metainfo.duration).get());
-  BT_LOG("Song total track: %s", NS_ConvertUTF16toUTF8(metainfo.totalTracks).get());
-  BT_LOG("Song track no: %s", NS_ConvertUTF16toUTF8(metainfo.trackNumber).get());
-  BT_LOG("isPlaying: %s", NS_ConvertUTF16toUTF8(metainfo.isPlaying).get());
-//#endif
   nsCOMPtr<nsIDOMRequestService> rs = do_GetService("@mozilla.org/dom/dom-request-service;1");
   if (!rs) {
     NS_WARNING("No DOMRequest Service!");
